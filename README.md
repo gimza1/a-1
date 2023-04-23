@@ -94,14 +94,6 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
   
 END customer_pkg;
 /
-This package defines four procedures: create_customer, get_customer, update_customer, and delete_customer.
-
-create_customer inserts a new customer record into the customers table with the provided information.
-get_customer retrieves a customer record from the customers table with the provided customer ID and returns a SYS_REFCURSOR object that can be used to fetch the results.
-update_customer updates an existing customer record in the customers table with the provided information.
-delete_customer deletes an existing customer record from the customers table with the provided customer ID.
-Note that this package assumes the existence of a customers table with columns for customer_id, first_name, last_name, and email.
-
 
 
 
