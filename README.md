@@ -1,3 +1,5 @@
+RANDOM:
+
 CREATE OR REPLACE PACKAGE customer_pkg AS
 
   -- CREATE
@@ -95,7 +97,50 @@ CREATE OR REPLACE PACKAGE BODY customer_pkg AS
 END customer_pkg;
 /
 
+MUKI PROCEDURE:
+CREATE OR REPLACE PROCEDURE get_customers(page_no NUMBER,
+page_size NUMBER)
+AS
+c_customers SYS_REFCURSOR;
+c_total_row SYS_REFCURSOR;
+BEGIN
+-- otvaranje prvog kursora ciji ce rezultujuci set podataka
+-- biti vracen procedurom
+OPEN c_total_row FOR
+SELECT COUNT(*)
+FROM customers;
 
+DBMS_SQL.RETURN_RESULT(c_total_row);
 
+-- otvaranje drugog kursora ciji ce rezultujuci set podataka
+-- biti vracen procedurom
+OPEN c_customers FOR
+SELECT customer_id, name
+FROM customers
+ORDER BY name
+OFFSET page_size * (page_no - 1) ROWS
+FETCH NEXT page_size ROWS ONLY;
 
+DBMS_SQL.RETURN_RESULT(c_customers);
+END;
+
+MUKI FUNCTION:
+CREATE OR REPLACE FUNCTION get_total_sales(in_year PLS_INTEGER)
+RETURN NUMBER
+IS
+l_total_sales NUMBER := 0;
+BEGIN
+-- izvrsavanje upita koji vraca informaciju o ukupnoj prodaji
+-- u odredjenoj godini
+SELECT SUM(unit_price * quantity)
+INTO l_total_sales
+FROM order_items
+INNER JOIN orders USING (order_id)
+WHERE status = 'Shipped'
+GROUP BY EXTRACT(YEAR FROM order_date)
+HAVING EXTRACT(YEAR FROM order_date) = in_year;
+
+-- funkcija vraca rezultat dobijen upitom
+RETURN l_total_sales;
+END;
 
